@@ -21,7 +21,6 @@ CHANGELOG_PLAIN=/tmp/CHANGELOG.md.plain.$USER
 CHANGELOG_GITHUB=/tmp/CHANGELOG.md.github.$USER
 CHANGELOG_LOCAL=./CHANGELOG.md
 slack_channel=keyevent-dev
-slack_enable=${SLACKTEE_TOKEN:-0}
 
 #
 # functions
@@ -246,7 +245,7 @@ if [[ "$release" -eq 1 ]];then
   gh release create $latest_tag -F $CHANGELOG_GITHUB
 fi
 
-if [[ "$slack_enable" -ne 0 ]];then
+if printenv SLACKTEE_TOKEN > /dev/null ;then
 
   if [[ ! -f /tmp/slacktee.sh ]];then
     wget -q https://raw.githubusercontent.com/coursehero/slacktee/222129128de4bdcd83bc23138b4fafaf60385b9a/slacktee.sh -O /tmp/slacktee.sh
@@ -257,5 +256,3 @@ if [[ "$slack_enable" -ne 0 ]];then
   cat $CHANGELOG_PLAIN | /tmp/slacktee.sh -q -c $slack_channel --icon "https://avatars.githubusercontent.com/u/65916846?s=48&v=4"
 
 fi
-
-
