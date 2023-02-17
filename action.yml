@@ -1,0 +1,37 @@
+name: 'changelog'
+description: 'tag the repo and update the CHANGELOG.md with the latest conventional commits'
+
+inputs:
+  version_tag:
+    description: 'version tag to use'
+    required: false
+    default: "next_tag"
+    type: string
+  slack_channel:
+    description: 'slack channel to alert'
+    required: false
+    default: "keyevent-dev"
+    type: string
+  github_write_token:
+    description: 'token needed to write to main branch'
+    required: true
+    type: string
+  slacktee_token:
+    description: 'token needed to send slack message'
+    required: true
+    type: string
+
+runs:
+  using: "composite"
+  steps:
+    - name: adjust the path to include the actions path so scripts in the action can be run
+      run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: bash
+
+    - name: tag repo create changelog and create release
+      run: changelog.sh -t ${{ inputs.version_tag }} --release --slack_channel keyevent-dev
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_write_token }}
+        SLACKTEE_TOKEN: ${{ inputs.slacktee_token }}
+
