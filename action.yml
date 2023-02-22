@@ -29,7 +29,7 @@ runs:
       shell: bash
 
     - name: tag repo create changelog and create release
-      run: changelog.sh -t ${{ inputs.version_tag }} --release --slack_channel keyevent-dev
+      run: changelog.sh -t ${{ inputs.version_tag }} --release --slack_channel ${{ inputs.slack_channel }}
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github_write_token }}
