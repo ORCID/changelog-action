@@ -207,13 +207,17 @@ echo "------------------------------------------------------"
 echo ""
 
 if [[ "$tag" = 'unreleased' ]];then
-  echo "tag is unreleased so exiting, not updating ./CHANGELOG.md, tagging or releasing to gihub."
+  echo "tag is unreleased so exiting, not updating ./CHANGELOG.md, tagging or releasing to github."
   exit
 fi
 
 if grep -q $latest_tag CHANGELOG.md;then
   echo "tag already exists in CHANGELOG.md"
 else
+
+  if [[ ! -f CHANGELOG.md ]];then
+    touch CHANGELOG.md
+  fi
 
   # add our new changelog entry to the top of our changelog
   cp CHANGELOG.md $CHANGELOG_PLAIN.old
