@@ -211,14 +211,13 @@ if [[ "$tag" = 'unreleased' ]];then
   exit
 fi
 
+if [[ ! -f CHANGELOG.md ]];then
+  touch CHANGELOG.md
+fi
+
 if grep -q $latest_tag CHANGELOG.md;then
   echo "tag already exists in CHANGELOG.md"
 else
-
-  if [[ ! -f CHANGELOG.md ]];then
-    touch CHANGELOG.md
-  fi
-
   # add our new changelog entry to the top of our changelog
   cp CHANGELOG.md $CHANGELOG_PLAIN.old
   cp $CHANGELOG_PLAIN CHANGELOG.md
