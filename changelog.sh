@@ -224,7 +224,7 @@ else
   cat $CHANGELOG_PLAIN.old >> CHANGELOG.md
 
   git add CHANGELOG.md
-  git commit -m '$latest_tag changelog update'
+  git commit -m "$latest_tag changelog update"
   git push origin
 fi
 
