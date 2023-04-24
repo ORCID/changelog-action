@@ -133,6 +133,9 @@ git_tags=`git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='-ve
 # fetch all the tags when they don't exist on github actions checkout
 git fetch --all > /dev/null 2>&1
 
+# include any merges not included when branch was made
+git pull
+
 # if tag is found we use it as the latest
 if echo "$git_tags" | grep -q $tag;then
   previous_tag=$(echo "$git_tags" | grep -A1 $tag | tail -n1)
