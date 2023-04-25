@@ -186,7 +186,7 @@ for commit in $commits; do
     if [[ "$commit_type_unified" = 'excluded' ]];then
       continue
     fi
-    echo "  - $commit_subject_no_type" >> /tmp/${commit_type_unified}.$USER
+    echo "- $commit_subject_no_type" >> /tmp/${commit_type_unified}.$USER
 	fi
 
 done
