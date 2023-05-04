@@ -174,7 +174,7 @@ for commit in $commits; do
 		# Get the body of the commit
 		body=$(git log -1 ${commit} --pretty=format:"%b")
 		markdown+='\n'
-		markdown+=" - [#$pull_num]($repository_url/pull/$pull_num): $body"
+		markdown+="- [#$pull_num]($repository_url/pull/$pull_num): $body"
 	fi
 
 	if grep -qEo "[[:alpha:]]+:" <<< "$subject"; then
