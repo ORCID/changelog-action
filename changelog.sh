@@ -131,10 +131,8 @@ fi
 git_tags=`git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='-version:refname' --tags origin '*.*.*' | grep "$prefix_search_arg" | cut -d '/' -f 3`
 
 # fetch all the tags when they don't exist on github actions checkout
+# and we need to search for all commits in the git log from the previous tag .. latest commit
 git fetch --all > /dev/null 2>&1
-
-# include any merges not included when branch was made
-git pull
 
 # if tag is found we use it as the latest
 if echo "$git_tags" | grep -q $tag;then
