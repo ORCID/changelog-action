@@ -245,8 +245,8 @@ if [[ "$delete_release" -eq 1 ]];then
 fi
 
 if [[ "$release" -eq 1 ]];then
-  echo gh release create $latest_tag -F $CHANGELOG_GITHUB
-  gh release create $latest_tag -F $CHANGELOG_GITHUB
+  echo gh release create -t $latest_tag $latest_tag -F $CHANGELOG_GITHUB
+  gh release create -t $latest_tag $latest_tag -F $CHANGELOG_GITHUB
 fi
 
 if printenv SLACKTEE_TOKEN > /dev/null ;then
