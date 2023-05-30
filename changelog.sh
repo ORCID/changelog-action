@@ -21,6 +21,7 @@ CHANGELOG_PLAIN=/tmp/CHANGELOG.md.plain.$USER
 CHANGELOG_GITHUB=/tmp/CHANGELOG.md.github.$USER
 CHANGELOG_LOCAL=./CHANGELOG.md
 slack_channel=keyevent-dev
+dry_run=0
 
 #
 # functions
@@ -69,13 +70,21 @@ sk-ccommit-builder(){
   local target_file=${1:-/tmp/blar}
   for commit_type in $CCOMMIT_TYPES;do
     if [[ -f /tmp/${commit_type}.$USER ]];then
-      echo "" >> $target_file
       upcase_commit_type=$(tr '[:lower:]' '[:upper:]' <<< ${commit_type:0:1})${commit_type:1}
       echo "### $upcase_commit_type" >> $target_file
       echo "" >> $target_file
       cat /tmp/$commit_type.$USER >> $target_file
+      echo "" >> $target_file
     fi
   done
+}
+
+sk-pr-builder(){
+  local target_file=${1:-/tmp/blar}
+  if [[ -f /tmp/pr.$USER ]];then
+    cat /tmp/pr.$USER >> $target_file
+    echo "" >> $target_file
+  fi
 }
 
 sk-ccommit-unifier(){
@@ -119,6 +128,10 @@ done
 
 sk-ccommit-cleanup
 
+if [[ -f /tmp/pr.$USER ]];then
+  rm /tmp/pr.$USER
+fi
+
 if printenv GITHUB_REF_NAME;then
   git config --global user.email "actions@github.com"
   git config --global user.name "github actions"
@@ -156,7 +169,9 @@ echo "latest_tag: $latest_tag"
 echo "previous_tag $previous_tag"
 
 # Store our changelog in a variable to be saved to a file at the end
-markdown="[Full Changelog]($repository_url/compare/$previous_tag...$latest_tag)"
+
+markdown='\n'
+markdown+="[Full Changelog]($repository_url/compare/$previous_tag...$latest_tag)"
 markdown+='\n'
 
 # Loop over each commit and look for merged pull requests
@@ -173,13 +188,12 @@ for commit in $commits; do
 
 		# Get the body of the commit
 		body=$(git log -1 ${commit} --pretty=format:"%b")
-		markdown+='\n'
-		markdown+="- [#$pull_num]($repository_url/pull/$pull_num): $body"
+		echo "- [#$pull_num]($repository_url/pull/$pull_num): $body" >> /tmp/pr.$USER
 	fi
 
 	if grep -qEo "[[:alpha:]]+:" <<< "$subject"; then
     commit_type=$(echo "$subject" | perl -ne '/(\w+):/ && print $1')
-    commit_subject_no_type=$(echo "$subject" | perl -ne '/(\w+):(.*)/ && print $2')
+    commit_subject_no_type=$(echo "$subject" | perl -ne '/(\w+): (.*)/ && print $2')
     commit_type_unified=$(sk-ccommit-unifier $commit_type)
     if [[ "$commit_type_unified" = 'excluded' ]];then
       continue
@@ -195,9 +209,11 @@ echo -e $markdown > $CHANGELOG_GITHUB
 echo "## $latest_tag - $(date +%F)" > $CHANGELOG_PLAIN
 echo -e $markdown >> $CHANGELOG_PLAIN
 
+sk-pr-builder $CHANGELOG_PLAIN
+sk-pr-builder $CHANGELOG_GITHUB
+
 sk-ccommit-builder $CHANGELOG_PLAIN
 sk-ccommit-builder $CHANGELOG_GITHUB
-echo "" >> $CHANGELOG_PLAIN
 
 echo ""
 echo "--------------- NEW CHANGELOG ENTRY ------------------"
@@ -206,6 +222,10 @@ cat $CHANGELOG_PLAIN
 
 echo "------------------------------------------------------"
 echo ""
+
+if [[ "$dry_run" -eq 1 ]];then
+  exit
+fi
 
 if [[ "$tag" = 'unreleased' ]];then
   echo "tag is unreleased so exiting, not updating ./CHANGELOG.md, tagging or releasing to github."
